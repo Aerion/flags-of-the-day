@@ -4,7 +4,7 @@ export const getTodayString = (): string => {
 }
 
 export const getDayNumber = (): number => {
-  const startDate = new Date('2025-01-01T00:00:00.000Z')
+  const startDate = new Date('2025-08-01T00:00:00.000Z')
   const today = new Date(getTodayString() + 'T00:00:00.000Z')
   const diffTime = today.getTime() - startDate.getTime()
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
