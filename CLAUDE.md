@@ -9,6 +9,8 @@ This project uses pnpm as the package manager:
 - `pnpm dev` - Start development server (Vite)
 - `pnpm build` - Build for production (TypeScript compilation + Vite build)
 - `pnpm preview` - Preview production build
+- Use pnpm build to check that everything is building
+- Don't run pnpm dev, it's already running at port 5174
 
 ## Architecture Overview
 

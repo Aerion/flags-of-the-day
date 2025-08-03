@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useGameLogic } from './hooks/useGameLogic'
+import { useTranslation } from './hooks/useTranslation'
 import GameView from './components/GameView'
 import ResultsView from './components/ResultsView'
 
 const FlagGame: React.FC = () => {
+  const { t } = useTranslation()
   const {
     currentFlagIndex,
     score,
@@ -32,7 +34,7 @@ const FlagGame: React.FC = () => {
   }
 
   if (!gameStarted && !hasPlayedToday) {
-    return <div>Loading...</div>
+    return <div>{t('loading')}</div>
   }
 
   return (

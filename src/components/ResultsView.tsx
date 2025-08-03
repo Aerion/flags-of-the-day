@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import type { FlagData } from '../types'
+import { useTranslation } from '../hooks/useTranslation'
 
 interface ResultsViewProps {
   score: number
@@ -16,6 +17,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   getDayNumber,
   getTimeUntilNextGame
 }) => {
+  const { t } = useTranslation()
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextGame())
 
   useEffect(() => {
@@ -27,12 +29,12 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   }, [getTimeUntilNextGame])
   const shareResults = async () => {
     const squares = userAnswers.map(isCorrect => isCorrect ? '🟩' : '🟥').join('')
-    const text = `🏁 Flag of the Day #${getDayNumber()}: ${score}/5\n${squares}`
+    const text = `${t('flagOfTheDay')} #${getDayNumber()}: ${score}/5\n${squares}`
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Flag of the Day',
+          title: t('flagOfTheDay'),
           text: text
         })
       } catch (error) {
@@ -46,7 +48,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   const fallbackShare = (text: string) => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
-        alert('Results copied to clipboard!')
+        alert(t('resultsCopied'))
       }).catch(() => {
         showShareText(text)
       })
@@ -56,20 +58,20 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   }
 
   const showShareText = (text: string) => {
-    alert(`Copy this text to share:\n\n${text}`)
+    alert(`${t('copyToShare')}:\n\n${text}`)
   }
 
   return (
     <>
       <header>
-        <h1>🏁 Flag of the Day #{getDayNumber()}</h1>
+        <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
       </header>
       
       <div id="results">
-        <h2>Game Complete!</h2>
-      <p id="final-score">You scored {score} out of 5!</p>
+        <h2>{t('gameComplete')}</h2>
+      <p id="final-score">{t('finalScore', { score, total: 5 })}</p>
       <div id="flag-summary">
-        <h3>Today's Flags:</h3>
+        <h3>{t('todaysFlags')}</h3>
         <div id="flag-list">
           {dailyFlags.map((flag, index) => {
             const isCorrect = userAnswers[index]
@@ -92,12 +94,12 @@ const ResultsView: React.FC<ResultsViewProps> = ({
       </div>
         <div id="share-section">
           <button id="share-btn" onClick={shareResults}>
-            Share Results
+            {t('shareResults')}
           </button>
         </div>
         
         <div id="countdown-section">
-          <p id="next-game-info">Next game in:</p>
+          <p id="next-game-info">{t('nextGameIn')}</p>
           <div id="countdown">
             {timeLeft.hours.toString().padStart(2, '0')}:
             {timeLeft.minutes.toString().padStart(2, '0')}:

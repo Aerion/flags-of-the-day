@@ -86,7 +86,9 @@ export const useGameLogic = () => {
 
   const submitGuess = (guess: string): boolean => {
     const currentFlag = dailyFlags[currentFlagIndex]
-    const isCorrect = normalizeAnswer(guess) === normalizeAnswer(currentFlag.country)
+    const normalizedGuess = normalizeAnswer(guess)
+    const isCorrect = normalizedGuess === normalizeAnswer(currentFlag.country) || 
+                     normalizedGuess === normalizeAnswer(currentFlag.countryFr)
     
     const newAnswers = [...userAnswers]
     newAnswers[currentFlagIndex] = isCorrect

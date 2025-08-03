@@ -3,6 +3,7 @@ import { Combobox } from '@headlessui/react'
 import Fuse from 'fuse.js'
 import type { FlagData } from '../types'
 import { FLAGS } from '../types'
+import { useTranslation } from '../hooks/useTranslation'
 
 type GameState = 'input' | 'feedback' | 'complete'
 
@@ -23,6 +24,7 @@ const GameView: React.FC<GameViewProps> = ({
   onGameComplete,
   getDayNumber
 }) => {
+  const { t, language } = useTranslation()
   const [selectedCountry, setSelectedCountry] = useState<string>('')
   const [query, setQuery] = useState('')
   const [feedback, setFeedback] = useState<{ message: string; isCorrect: boolean } | null>(null)
@@ -30,10 +32,10 @@ const GameView: React.FC<GameViewProps> = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
-    keys: ['country'],
+    keys: language === 'fr' ? ['countryFr'] : ['country'],
     threshold: 0.3,
     includeScore: true
-  }), [])
+  }), [language])
 
   const filteredCountries = useMemo(() => {
     if (query.length < 2) return []
@@ -73,7 +75,7 @@ const GameView: React.FC<GameViewProps> = ({
     const isCorrect = submitGuess(guess)
     
     setFeedback({
-      message: isCorrect ? '🎉 Correct!' : `❌ Incorrect. The answer was ${currentFlag.country}`,
+      message: isCorrect ? t('correct') : t('incorrect', { country: language === 'fr' ? currentFlag.countryFr : currentFlag.country }),
       isCorrect
     })
 
@@ -92,8 +94,8 @@ const GameView: React.FC<GameViewProps> = ({
   return (
     <>
       <header>
-        <h1>🏁 Flag of the Day #{getDayNumber()}</h1>
-        <p id="progress">Flag {currentFlagIndex + 1} of 5</p>
+        <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
+        <p id="progress">{t('flagProgress', { current: currentFlagIndex + 1, total: 5 })}</p>
       </header>
       
       <main>
@@ -111,7 +113,7 @@ const GameView: React.FC<GameViewProps> = ({
                 ref={inputRef}
                 key={currentFlagIndex}
                 id="country-input"
-                placeholder="Which country is this?"
+                placeholder={t('whichCountry')}
                 autoComplete="off"
                 displayValue={() => selectedCountry}
                 onChange={(event) => {
@@ -124,12 +126,12 @@ const GameView: React.FC<GameViewProps> = ({
                   {filteredCountries.map((flag) => (
                     <Combobox.Option 
                       key={flag.country} 
-                      value={flag.country} 
+                      value={language === 'fr' ? flag.countryFr : flag.country} 
                       className={({ focus }) => 
                         `autocomplete-item ${focus ? 'highlighted' : ''}`
                       }
                     >
-                      {flag.country}
+                      {language === 'fr' ? flag.countryFr : flag.country}
                     </Combobox.Option>
                   ))}
                 </Combobox.Options>
@@ -139,13 +141,13 @@ const GameView: React.FC<GameViewProps> = ({
           
           {gameState === 'input' && (
             <button id="main-btn" onClick={handleSubmit}>
-              Submit
+              {t('submit')}
             </button>
           )}
           
           {gameState === 'feedback' && (
             <button id="main-btn" onClick={handleNext}>
-              {currentFlagIndex >= 4 ? 'Finish Game' : 'Next Flag'}
+              {currentFlagIndex >= 4 ? t('finishGame') : t('nextFlag')}
             </button>
           )}
         </div>
