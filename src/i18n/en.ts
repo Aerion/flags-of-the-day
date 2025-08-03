@@ -1,6 +1,6 @@
 export const en = {
   loading: 'Loading...',
-  flagOfTheDay: '🏁 Flag of the Day',
+  flagOfTheDay: '🏁 Flags of the Day',
   flagProgress: 'Flag {current} of {total}',
   whichCountry: 'Which country is this?',
   submit: 'Submit',

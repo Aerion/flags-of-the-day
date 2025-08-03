@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react'
+import confetti from 'canvas-confetti'
 import type { FlagData } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
+import { getDayNumber, getTimeUntilNextGame } from '../utils/dateUtils'
 
 interface ResultsViewProps {
   score: number
   dailyFlags: FlagData[]
   userAnswers: boolean[]
-  getDayNumber: () => number
-  getTimeUntilNextGame: () => { hours: number; minutes: number; seconds: number }
 }
 
 const ResultsView: React.FC<ResultsViewProps> = ({
   score,
   dailyFlags,
-  userAnswers,
-  getDayNumber,
-  getTimeUntilNextGame
+  userAnswers
 }) => {
   const { t } = useTranslation()
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextGame())
-
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(getTimeUntilNextGame())
@@ -27,87 +24,77 @@ const ResultsView: React.FC<ResultsViewProps> = ({
 
     return () => clearInterval(timer)
   }, [getTimeUntilNextGame])
+
+  useEffect(() => {
+    // Simple confetti for perfect score only
+    if (score === 5) {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 }
+      })
+    }
+  }, [score])
   const shareResults = async () => {
     const squares = userAnswers.map(isCorrect => isCorrect ? '🟩' : '🟥').join('')
-    const text = `${t('flagOfTheDay')} #${getDayNumber()}: ${score}/5\n${squares}`
+    const text = `${t('flagOfTheDay')} #${getDayNumber()}: ${score}/5\n${squares}\nhttps://flagsoftheday.aerion.me`
     
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: t('flagOfTheDay'),
-          text: text
-        })
-      } catch (error) {
-        fallbackShare(text)
-      }
-    } else {
-      fallbackShare(text)
-    }
-  }
-
-  const fallbackShare = (text: string) => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         alert(t('resultsCopied'))
       }).catch(() => {
-        showShareText(text)
+        alert(`${t('copyToShare')}:\n\n${text}`)
       })
     } else {
-      showShareText(text)
+      alert(`${t('copyToShare')}:\n\n${text}`)
     }
   }
 
-  const showShareText = (text: string) => {
-    alert(`${t('copyToShare')}:\n\n${text}`)
-  }
-
   return (
-    <>
-      <header>
+    <div className="results-container">
+      <header className="results-header">
         <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
+        <p className="final-score">{t('finalScore', { score: score, total: 5 })}</p>
       </header>
       
-      <div id="results">
-        <h2>{t('gameComplete')}</h2>
-      <p id="final-score">{t('finalScore', { score, total: 5 })}</p>
-      <div id="flag-summary">
-        <h3>{t('todaysFlags')}</h3>
-        <div id="flag-list">
+      <div className="results-content">
+        <div className="flag-grid">
           {dailyFlags.map((flag, index) => {
             const isCorrect = userAnswers[index]
             return (
               <div
                 key={flag.country}
-                className={`flag-item ${isCorrect ? 'correct' : 'incorrect'}`}
+                className={`flag-item ${isCorrect ? 'correct' : 'incorrect'} flag-item-enter`}
+                style={{ 
+                  animationDelay: `${index * 150}ms`
+                }}
               >
-                <div className="flag-info">
-                  <span className="flag-emoji">{flag.flag}</span>
-                  <span className="flag-country">{flag.country}</span>
-                </div>
+                <span className="flag-emoji">{flag.flag}</span>
+                <span className="flag-country">{flag.country}</span>
                 <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>
                   {isCorrect ? '✓' : '✗'}
                 </div>
               </div>
             )
           })}
-        </div>
-      </div>
-        <div id="share-section">
-          <button id="share-btn" onClick={shareResults}>
-            {t('shareResults')}
-          </button>
-        </div>
-        
-        <div id="countdown-section">
-          <p id="next-game-info">{t('nextGameIn')}</p>
-          <div id="countdown">
-            {timeLeft.hours.toString().padStart(2, '0')}:
-            {timeLeft.minutes.toString().padStart(2, '0')}:
-            {timeLeft.seconds.toString().padStart(2, '0')}
+          
+          <div className="countdown-item">
+            <div className="countdown-content">
+              <p className="next-game-info">{t('nextGameIn')}</p>
+              <div className="countdown">
+                {timeLeft.hours.toString().padStart(2, '0')}:
+                {timeLeft.minutes.toString().padStart(2, '0')}:
+                {timeLeft.seconds.toString().padStart(2, '0')}
+              </div>
+            </div>
           </div>
         </div>
+        
+        <button className="share-btn" onClick={shareResults}>
+          {t('shareResults')}
+        </button>
       </div>
-    </>
+    </div>
   )
 }
 

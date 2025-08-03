@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@vitejs/plugin-react": "^4.7.0",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
@@ -17,6 +18,7 @@
     "@headlessui/react": "^2.2.7",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "canvas-confetti": "^1.9.3",
     "fuse.js": "^7.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

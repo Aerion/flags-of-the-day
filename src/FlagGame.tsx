@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useGameLogic } from './hooks/useGameLogic'
 import { useTranslation } from './hooks/useTranslation'
 import GameView from './components/GameView'
@@ -15,22 +15,13 @@ const FlagGame: React.FC = () => {
     dailyFlags,
     submitGuess,
     nextFlag,
-    saveGameData,
-    getDayNumber,
-    getTimeUntilNextGame
+    saveGameData
   } = useGameLogic()
 
-  const [gamePhase, setGamePhase] = useState<'playing' | 'results'>('playing')
-
-  useEffect(() => {
-    if (hasPlayedToday) {
-      setGamePhase('results')
-    }
-  }, [hasPlayedToday])
+  const isGameComplete = hasPlayedToday || currentFlagIndex >= 5
 
   const handleGameComplete = () => {
     saveGameData()
-    setGamePhase('results')
   }
 
   if (!gameStarted && !hasPlayedToday) {
@@ -39,22 +30,19 @@ const FlagGame: React.FC = () => {
 
   return (
     <div id="app">
-      {gamePhase === 'playing' ? (
+      {!isGameComplete ? (
         <GameView
           currentFlagIndex={currentFlagIndex}
           dailyFlags={dailyFlags}
           submitGuess={submitGuess}
           nextFlag={nextFlag}
           onGameComplete={handleGameComplete}
-          getDayNumber={getDayNumber}
         />
       ) : (
         <ResultsView
           score={score}
           dailyFlags={dailyFlags}
           userAnswers={userAnswers}
-          getDayNumber={getDayNumber}
-          getTimeUntilNextGame={getTimeUntilNextGame}
         />
       )}
     </div>

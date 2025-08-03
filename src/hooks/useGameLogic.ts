@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { FLAGS } from '../types'
+import { getTodayString } from '../utils/dateUtils'
 
 export const useGameLogic = () => {
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
@@ -8,33 +9,6 @@ export const useGameLogic = () => {
   const [hasPlayedToday, setHasPlayedToday] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
 
-  const getTodayString = (): string => {
-    const now = new Date()
-    return new Date(now.getTime() + now.getTimezoneOffset() * 60000).toISOString().split('T')[0]
-  }
-
-  const getDayNumber = (): number => {
-    const startDate = new Date('2025-01-01T00:00:00.000Z')
-    const today = new Date(getTodayString() + 'T00:00:00.000Z')
-    const diffTime = today.getTime() - startDate.getTime()
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays + 1
-  }
-
-  const getTimeUntilNextGame = (): { hours: number; minutes: number; seconds: number } => {
-    const now = new Date()
-    const nowUtc = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
-    const tomorrowUtc = new Date(nowUtc)
-    tomorrowUtc.setUTCDate(nowUtc.getUTCDate() + 1)
-    tomorrowUtc.setUTCHours(0, 0, 0, 0)
-    
-    const timeLeft = tomorrowUtc.getTime() - nowUtc.getTime()
-    const hours = Math.floor(timeLeft / (1000 * 60 * 60))
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
-    
-    return { hours, minutes, seconds }
-  }
 
   const hashCode = (str: string): number => {
     let hash = 0
@@ -110,6 +84,7 @@ export const useGameLogic = () => {
     localStorage.setItem('flag-game-last-played', today)
     localStorage.setItem('flag-game-score', score.toString())
     localStorage.setItem('flag-game-answers', JSON.stringify(userAnswers))
+    setHasPlayedToday(true)
   }
 
   useEffect(() => {
@@ -128,8 +103,6 @@ export const useGameLogic = () => {
     submitGuess,
     nextFlag,
     saveGameData,
-    normalizeAnswer,
-    getDayNumber,
-    getTimeUntilNextGame
+    normalizeAnswer
   }
 }

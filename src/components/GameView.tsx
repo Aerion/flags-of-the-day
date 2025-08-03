@@ -4,6 +4,8 @@ import Fuse from 'fuse.js'
 import type { FlagData } from '../types'
 import { FLAGS } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
+import { useAnimations } from '../hooks/useAnimations'
+import { getDayNumber } from '../utils/dateUtils'
 
 type GameState = 'input' | 'feedback' | 'complete'
 
@@ -13,7 +15,6 @@ interface GameViewProps {
   submitGuess: (guess: string) => boolean
   nextFlag: () => void
   onGameComplete: () => void
-  getDayNumber: () => number
 }
 
 const GameView: React.FC<GameViewProps> = ({
@@ -21,14 +22,13 @@ const GameView: React.FC<GameViewProps> = ({
   dailyFlags,
   submitGuess,
   nextFlag,
-  onGameComplete,
-  getDayNumber
+  onGameComplete
 }) => {
   const { t, language } = useTranslation()
-  const [selectedCountry, setSelectedCountry] = useState<string>('')
   const [query, setQuery] = useState('')
   const [feedback, setFeedback] = useState<{ message: string; isCorrect: boolean } | null>(null)
   const [gameState, setGameState] = useState<GameState>('input')
+  const { flagCelebrating, feedbackAnimating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
@@ -45,15 +45,15 @@ const GameView: React.FC<GameViewProps> = ({
   const currentFlag = dailyFlags[currentFlagIndex]
 
   useEffect(() => {
-    setSelectedCountry('')
     setQuery('')
     setGameState('input')
     setFeedback(null)
+    resetAnimations()
     // Focus the input after state updates
     setTimeout(() => {
       inputRef.current?.focus()
     }, 0)
-  }, [currentFlagIndex])
+  }, [currentFlagIndex, resetAnimations])
 
   useEffect(() => {
     const handleGlobalKeydown = (e: KeyboardEvent) => {
@@ -69,7 +69,7 @@ const GameView: React.FC<GameViewProps> = ({
 
 
   const handleSubmit = () => {
-    const guess = (selectedCountry || query).trim()
+    const guess = query.trim()
     if (!guess) return
 
     const isCorrect = submitGuess(guess)
@@ -78,6 +78,12 @@ const GameView: React.FC<GameViewProps> = ({
       message: isCorrect ? t('correct') : t('incorrect', { country: language === 'fr' ? currentFlag.countryFr : currentFlag.country }),
       isCorrect
     })
+
+    if (isCorrect) {
+      triggerSuccessAnimation()
+    } else {
+      triggerFeedbackAnimation()
+    }
 
     setGameState('feedback')
   }
@@ -100,13 +106,17 @@ const GameView: React.FC<GameViewProps> = ({
       
       <main>
         <div id="flag-container">
-          <div id="flag-display">{currentFlag?.flag}</div>
+          <div 
+            id="flag-display" 
+            className={flagCelebrating ? 'flag-celebrate' : ''}
+          >
+            {currentFlag?.flag}
+          </div>
         </div>
         
         <div id="game-area">
           <div id="autocomplete-container" style={{ position: 'relative' }}>
-            <Combobox value={selectedCountry} onChange={(value) => {
-              setSelectedCountry(value || '')
+            <Combobox value={query} onChange={(value) => {
               setQuery(value || '')
             }} disabled={gameState !== 'input'}>
               <Combobox.Input
@@ -115,10 +125,9 @@ const GameView: React.FC<GameViewProps> = ({
                 id="country-input"
                 placeholder={t('whichCountry')}
                 autoComplete="off"
-                displayValue={() => selectedCountry}
+                displayValue={() => query}
                 onChange={(event) => {
                   setQuery(event.target.value)
-                  if (!event.target.value) setSelectedCountry('')
                 }}
               />
               {filteredCountries.length > 0 && (
@@ -140,7 +149,11 @@ const GameView: React.FC<GameViewProps> = ({
           </div>
           
           {gameState === 'input' && (
-            <button id="main-btn" onClick={handleSubmit}>
+            <button 
+              id="main-btn" 
+              className={buttonSuccess ? 'button-success' : ''}
+              onClick={handleSubmit}
+            >
               {t('submit')}
             </button>
           )}
@@ -155,7 +168,13 @@ const GameView: React.FC<GameViewProps> = ({
         <div id="feedback-section">
           <div 
             id="feedback" 
-            className={feedback ? (feedback.isCorrect ? 'correct' : 'incorrect') : 'hidden'}
+            className={`${feedback ? (feedback.isCorrect ? 'correct' : 'incorrect') : 'hidden'} ${
+              feedbackAnimating ? 'feedback-slide-in' : ''
+            } ${
+              feedback && feedback.isCorrect ? 'feedback-pulse' : ''
+            } ${
+              feedback && !feedback.isCorrect ? 'feedback-shake' : ''
+            }`}
           >
             {feedback ? feedback.message : '\u00A0'}
           </div>
