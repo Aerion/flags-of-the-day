@@ -1,3 +1,5 @@
+@import 'flag-icons/css/flag-icons.min.css';
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -82,7 +84,6 @@ h1 {
 #flag-display {
   width: clamp(18rem, 50vw, 30rem);
   height: clamp(12rem, 33vw, 20rem);
-  font-size: clamp(6rem, 18vw, 12rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,6 +91,10 @@ h1 {
   border-radius: clamp(1rem, 3vw, 2rem);
   box-shadow: 0 clamp(1rem, 3vw, 2rem) clamp(2rem, 6vw, 4rem) rgba(0, 0, 0, 0.4);
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+#flag-display .fi {
+  font-size: clamp(6rem, 18vw, 12rem);
 }
 
 /* Input Section */
@@ -452,11 +457,14 @@ button:disabled::before {
 }
 
 .flag-emoji {
-  font-size: clamp(2.33rem, 6vw, 3rem);
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.flag-emoji .fi {
+  font-size: clamp(2.33rem, 6vw, 3rem);
 }
 
 .flag-country {

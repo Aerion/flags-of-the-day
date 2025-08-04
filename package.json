@@ -19,6 +19,7 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "canvas-confetti": "^1.9.3",
+    "flag-icons": "^7.5.0",
     "fuse.js": "^7.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

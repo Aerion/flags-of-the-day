@@ -110,7 +110,9 @@ const GameView: React.FC<GameViewProps> = ({
             id="flag-display" 
             className={flagCelebrating ? 'flag-celebrate' : ''}
           >
-            {currentFlag?.flag}
+            {currentFlag && (
+              <span className={`fi fi-${currentFlag.code}`}></span>
+            )}
           </div>
         </div>
         

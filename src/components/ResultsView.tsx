@@ -69,7 +69,9 @@ const ResultsView: React.FC<ResultsViewProps> = ({
                   animationDelay: `${index * 150}ms`
                 }}
               >
-                <span className="flag-emoji">{flag.flag}</span>
+                <span className="flag-emoji">
+                  <span className={`fi fi-${flag.code}`}></span>
+                </span>
                 <span className="flag-country">{flag.country}</span>
                 <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>
                   {isCorrect ? '✓' : '✗'}
