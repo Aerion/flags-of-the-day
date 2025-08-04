@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { FLAGS } from '../types'
-import { getTodayString } from '../utils/dateUtils'
+import { getTodayString, getDayNumber } from '../utils/dateUtils'
 
 export const useGameLogic = () => {
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
@@ -10,31 +10,33 @@ export const useGameLogic = () => {
   const [gameStarted, setGameStarted] = useState(false)
 
 
-  const hashCode = (str: string): number => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash
-    }
-    return Math.abs(hash)
+  const hashDayNumber = (day: number): number => {
+    const hash = (day * 16777619) ^ 0x811c9dc5
+    console.log(`Day: ${day}, Hash: ${hash}`)
+    return Math.abs(hash) // Ensure positive number
   }
 
-  const seededRandom = (seed: number): (() => number) => {
-    let x = Math.sin(seed) * 10000
-    return () => {
-      x = Math.sin(x) * 10000
-      return x - Math.floor(x)
-    }
-  }
 
   const dailyFlags = useMemo(() => {
-    const today = getTodayString()
-    const seed = hashCode(today)
-    const rng = seededRandom(seed)
+    const seed = hashDayNumber(getDayNumber())
+    const flags = []
+    const used = new Set()
     
-    const shuffled = [...FLAGS].sort(() => rng() - 0.5)
-    return shuffled.slice(0, 5)
+    let offset = 0
+    while (flags.length < 5) {
+      const index = (seed + offset * 1013) % FLAGS.length
+      if (!used.has(index)) {
+        used.add(index)
+        const selectedFlag = FLAGS[index]
+        if (!selectedFlag) {
+          console.error(`Flag at index ${index} is undefined. FLAGS.length: ${FLAGS.length}`)
+        }
+        flags.push(selectedFlag)
+      }
+      offset++
+    }
+
+    return flags
   }, [])
 
   const checkIfPlayedToday = () => {
