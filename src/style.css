@@ -475,6 +475,87 @@ button:disabled::before {
   }
 }
 
+/* Short screens (keyboard visible on mobile) */
+@media (max-height: 480px) {
+  body {
+    padding: 0;
+  }
+  
+  #app {
+    gap: 0.5rem;
+    padding: 0;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+  
+  main {
+    gap: 0.75rem;
+  }
+  
+  header {
+    gap: 0;
+    padding: 0.5rem 1rem 0;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    line-height: 1;
+    margin: 0;
+  }
+  
+  #progress {
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.7;
+  }
+  
+  #flag-container {
+    padding: 0 0.5rem;
+  }
+  
+  #flag-display {
+    width: min(280px, 80vw);
+    height: min(180px, 52vw);
+    border-width: 3px;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+  }
+  
+  #flag-display .fi {
+    font-size: min(120px, 34vw);
+  }
+  
+  .flag-name-overlay {
+    top: 0.375rem;
+    left: 0.375rem;
+    right: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+  }
+  
+  #game-area {
+    gap: 0.75rem;
+    padding: 0 1rem 0.5rem;
+  }
+  
+  #autocomplete-container {
+    width: min(280px, 80vw);
+  }
+  
+  #country-input {
+    padding: 0.75rem;
+    font-size: 1rem;
+    width: 100%;
+  }
+  
+  button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-width: 8rem;
+  }
+}
+
 .flag-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
