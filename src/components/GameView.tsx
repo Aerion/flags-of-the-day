@@ -28,7 +28,7 @@ const GameView: React.FC<GameViewProps> = ({
   const [query, setQuery] = useState('')
   const [feedback, setFeedback] = useState<{ message: string; isCorrect: boolean } | null>(null)
   const [gameState, setGameState] = useState<GameState>('input')
-  const { flagCelebrating, feedbackAnimating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
+  const { flagCelebrating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
@@ -108,10 +108,17 @@ const GameView: React.FC<GameViewProps> = ({
         <div id="flag-container">
           <div 
             id="flag-display" 
-            className={flagCelebrating ? 'flag-celebrate' : ''}
+            className={`${flagCelebrating ? 'flag-celebrate' : ''} ${
+              feedback ? (feedback.isCorrect ? 'flag-correct' : 'flag-incorrect') : ''
+            }`}
           >
             {currentFlag && (
               <span className={`fi fi-${currentFlag.code}`}></span>
+            )}
+            {feedback && !feedback.isCorrect && (
+              <div className="flag-name-overlay">
+                {language === 'fr' ? currentFlag.countryFr : currentFlag.country}
+              </div>
             )}
           </div>
         </div>
@@ -165,21 +172,6 @@ const GameView: React.FC<GameViewProps> = ({
               {currentFlagIndex >= 4 ? t('finishGame') : t('nextFlag')}
             </button>
           )}
-        </div>
-        
-        <div id="feedback-section">
-          <div 
-            id="feedback" 
-            className={`${feedback ? (feedback.isCorrect ? 'correct' : 'incorrect') : 'hidden'} ${
-              feedbackAnimating ? 'feedback-slide-in' : ''
-            } ${
-              feedback && feedback.isCorrect ? 'feedback-pulse' : ''
-            } ${
-              feedback && !feedback.isCorrect ? 'feedback-shake' : ''
-            }`}
-          >
-            {feedback ? feedback.message : '\u00A0'}
-          </div>
         </div>
       </main>
     </>
