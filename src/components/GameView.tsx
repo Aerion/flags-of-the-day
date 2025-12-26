@@ -6,6 +6,7 @@ import { FLAGS } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
 import { useAnimations } from '../hooks/useAnimations'
 import { getDayNumber } from '../utils/dateUtils'
+import { normalizeAnswer } from '../utils/answerUtils'
 
 type GameState = 'input' | 'feedback' | 'complete'
 
@@ -44,6 +45,17 @@ const GameView: React.FC<GameViewProps> = ({
 
   const currentFlag = dailyFlags[currentFlagIndex]
 
+  // Check if input matches any valid country
+  const isValidCountry = useMemo(() => {
+    const trimmed = query.trim()
+    if (!trimmed) return false
+    const normalized = normalizeAnswer(trimmed)
+    return FLAGS.some(flag =>
+      normalizeAnswer(flag.country) === normalized ||
+      normalizeAnswer(flag.countryFr) === normalized
+    )
+  }, [query])
+
   useEffect(() => {
     setQuery('')
     setGameState('input')
@@ -55,6 +67,14 @@ const GameView: React.FC<GameViewProps> = ({
     }, 0)
   }, [currentFlagIndex, resetAnimations])
 
+  const handleNext = () => {
+    if (currentFlagIndex >= 4) {
+      onGameComplete()
+    } else {
+      nextFlag()
+    }
+  }
+
   useEffect(() => {
     const handleGlobalKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && gameState === 'feedback') {
@@ -65,8 +85,7 @@ const GameView: React.FC<GameViewProps> = ({
 
     document.addEventListener('keydown', handleGlobalKeydown)
     return () => document.removeEventListener('keydown', handleGlobalKeydown)
-  }, [gameState])
-
+  }, [gameState, currentFlagIndex, onGameComplete, nextFlag])
 
   const handleSubmit = () => {
     const guess = query.trim()
@@ -87,15 +106,6 @@ const GameView: React.FC<GameViewProps> = ({
 
     setGameState('feedback')
   }
-
-  const handleNext = () => {
-    if (currentFlagIndex >= 4) {
-      onGameComplete()
-    } else {
-      nextFlag()
-    }
-  }
-
 
   return (
     <>
@@ -162,6 +172,7 @@ const GameView: React.FC<GameViewProps> = ({
               id="main-btn" 
               className={buttonSuccess ? 'button-success' : ''}
               onClick={handleSubmit}
+              disabled={!isValidCountry}
             >
               {t('submit')}
             </button>

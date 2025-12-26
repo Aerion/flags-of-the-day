@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { FLAGS } from '../types'
 import { getTodayString, getDayNumber } from '../utils/dateUtils'
+import { normalizeAnswer } from '../utils/answerUtils'
 
 export const useGameLogic = () => {
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
@@ -10,33 +11,28 @@ export const useGameLogic = () => {
   const [gameStarted, setGameStarted] = useState(false)
 
 
-  const hashDayNumber = (day: number): number => {
-    const hash = (day * 16777619) ^ 0x811c9dc5
-    console.log(`Day: ${day}, Hash: ${hash}`)
-    return Math.abs(hash) // Ensure positive number
+  const createSeededRNG = (seed: number) => {
+    // Mulberry32
+    return function() {
+      let t = seed += 0x6D2B79F5
+      t = Math.imul(t ^ t >>> 15, t | 1)
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61)
+      return ((t ^ t >>> 14) >>> 0) / 4294967296
+    }
   }
 
-
   const dailyFlags = useMemo(() => {
-    const seed = hashDayNumber(getDayNumber())
-    const flags = []
-    const used = new Set()
+    const dayNumber = getDayNumber()
+    const rng = createSeededRNG(dayNumber)
     
-    let offset = 0
-    while (flags.length < 5) {
-      const index = (seed + offset * 1013) % FLAGS.length
-      if (!used.has(index)) {
-        used.add(index)
-        const selectedFlag = FLAGS[index]
-        if (!selectedFlag) {
-          console.error(`Flag at index ${index} is undefined. FLAGS.length: ${FLAGS.length}`)
-        }
-        flags.push(selectedFlag)
-      }
-      offset++
+    // Fisher–Yates shuffle
+    const shuffled = [...FLAGS]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
-
-    return flags
+    
+    return shuffled.slice(0, 5)
   }, [])
 
   const checkIfPlayedToday = () => {
@@ -52,12 +48,6 @@ export const useGameLogic = () => {
       return true
     }
     return false
-  }
-
-  const normalizeAnswer = (answer: string): string => {
-    return answer.toLowerCase().trim()
-      .replace(/^the\s+/, '')
-      .replace(/\s+/g, ' ')
   }
 
   const submitGuess = (guess: string): boolean => {
@@ -104,7 +94,6 @@ export const useGameLogic = () => {
     dailyFlags,
     submitGuess,
     nextFlag,
-    saveGameData,
-    normalizeAnswer
+    saveGameData
   }
 }

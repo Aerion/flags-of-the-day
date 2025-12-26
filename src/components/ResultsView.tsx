@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti'
 import type { FlagData } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
 import { getDayNumber, getTimeUntilNextGame } from '../utils/dateUtils'
+import countryCodeToFlagEmoji from 'country-code-to-flag-emoji'
 
 interface ResultsViewProps {
   score: number
@@ -15,7 +16,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   dailyFlags,
   userAnswers
 }) => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextGame())
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,7 +37,12 @@ const ResultsView: React.FC<ResultsViewProps> = ({
     }
   }, [score])
   const shareResults = async () => {
-    const squares = userAnswers.map(isCorrect => isCorrect ? '🟩' : '🟥').join('')
+    const lines = dailyFlags.map((flag, index) => {
+      const flagEmoji = countryCodeToFlagEmoji(flag.code.toUpperCase())
+      const square = userAnswers[index] ? '🟩' : '🟥'
+      return `${flagEmoji} ${square}`
+    })
+    const squares = lines.join('\n')
     const text = `${t('flagOfTheDay')} #${getDayNumber()}: ${score}/5\n${squares}\nhttps://flagsoftheday.aerion.me`
     
     if (navigator.clipboard) {
@@ -72,7 +78,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
                 <span className="flag-emoji">
                   <span className={`fi fi-${flag.code}`}></span>
                 </span>
-                <span className="flag-country">{flag.country}</span>
+                <span className="flag-country">{language === 'fr' ? flag.countryFr : flag.country}</span>
                 <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>
                   {isCorrect ? '✓' : '✗'}
                 </div>
