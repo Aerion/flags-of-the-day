@@ -27,7 +27,8 @@ const EXCLUDED_CODES = new Set([
   // Other territories sharing flags with parent countries
   'HM', // Heard Island and McDonald Islands (shares flag with AU)
   'SH', // Saint Helena (shares flag with GB)
-  'DG', // Diego Garcia (shares flag with IO)
+  'DG', // Diego Garcia (shares flag with IO),
+  'SJ', // Svalbard and Jan Mayen (shares flag with NO)
 ])
 
 const countryCodes = Object.keys(countries.getNames('en', { select: 'official' }))
