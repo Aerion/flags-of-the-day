@@ -25,6 +25,7 @@ const EXCLUDED_CODES = new Set([
   'WF', // Wallis and Futuna
   'YT', // Mayotte
   // Other territories sharing flags with parent countries
+  'BV', // Bouvet Island (shares flag with NO)
   'HM', // Heard Island and McDonald Islands (shares flag with AU)
   'SH', // Saint Helena (shares flag with GB)
   'DG', // Diego Garcia (shares flag with IO),

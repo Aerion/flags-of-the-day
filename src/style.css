@@ -1,5 +1,3 @@
-@import 'flag-icons/css/flag-icons.min.css';
-
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -95,8 +93,10 @@ h1 {
   transition: all 0.3s ease;
 }
 
-#flag-display .fi {
-  font-size: clamp(6rem, 18vw, 12rem);
+#flag-display img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
 }
 
 #flag-display.flag-correct {
@@ -521,8 +521,9 @@ button:disabled::before {
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
   }
   
-  #flag-display .fi {
-    font-size: min(120px, 34vw);
+  #flag-display img {
+    max-width: 85%;
+    max-height: 85%;
   }
   
   .flag-name-overlay {
@@ -585,8 +586,10 @@ button:disabled::before {
   justify-content: center;
 }
 
-.flag-emoji .fi {
-  font-size: clamp(2.33rem, 6vw, 3rem);
+.flag-emoji img {
+  height: clamp(2rem, 5vw, 2.5rem);
+  width: auto;
+  object-fit: contain;
 }
 
 .flag-country {

@@ -20,9 +20,6 @@ importers:
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
-      flag-icons:
-        specifier: ^7.5.0
-        version: 7.5.0
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -571,9 +568,6 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
-
-  flag-icons@7.5.0:
-    resolution: {integrity: sha512-kd+MNXviFIg5hijH766tt+3x76ele1AXlo4zDdCxIvqWZhKt4T83bOtxUOOMlTx/EcFdUMH5yvQgYlFh1EqqFg==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -1201,8 +1195,6 @@ snapshots:
   fdir@6.4.6(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
-
-  flag-icons@7.5.0: {}
 
   fsevents@2.3.3:
     optional: true

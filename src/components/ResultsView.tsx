@@ -70,7 +70,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
                 }}
               >
                 <span className="flag-emoji">
-                  <span className={`fi fi-${flag.code}`}></span>
+                  <img src={`/flags/${flag.code}.svg`} alt="" />
                 </span>
                 <span className="flag-country">{language === 'fr' ? flag.countryFr : flag.country}</span>
                 <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>

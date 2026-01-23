@@ -123,7 +123,7 @@ const GameView: React.FC<GameViewProps> = ({
             }`}
           >
             {currentFlag && (
-              <span className={`fi fi-${currentFlag.code}`}></span>
+              <img src={`/flags/${currentFlag.code}.svg`} alt="" />
             )}
             {feedback && !feedback.isCorrect && (
               <div className="flag-name-overlay">
