@@ -34,8 +34,8 @@ const GameView: React.FC<GameViewProps> = ({
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
     keys: language === 'fr' ? ['countryFr'] : ['country'],
-    threshold: 0.3,
-    includeScore: true
+    includeScore: true,
+    ignoreDiacritics: true,
   }), [language])
 
   const filteredCountries = useMemo(() => {
