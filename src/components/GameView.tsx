@@ -36,6 +36,7 @@ const GameView: React.FC<GameViewProps> = ({
     keys: language === 'fr' ? ['countryFr'] : ['country'],
     includeScore: true,
     ignoreDiacritics: true,
+    ignoreLocation: true,
   }), [language])
 
   const filteredCountries = useMemo(() => {
