@@ -10,6 +10,10 @@ export const useGameLogic = () => {
   const [hasPlayedToday, setHasPlayedToday] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
 
+  // Hardcoded lists for specific days
+  const HARDCODED_DAYS: Record<number, string[]> = {
+    199: ['fm', 'gm', 'mq', 'jp', 'vg']
+  }
 
   const createSeededRNG = (seed: number) => {
     // Mulberry32
@@ -23,15 +27,24 @@ export const useGameLogic = () => {
 
   const dailyFlags = useMemo(() => {
     const dayNumber = getDayNumber()
+
+    // Check for hardcoded days
+    const hardcodedCodes = HARDCODED_DAYS[dayNumber]
+    if (hardcodedCodes) {
+      return hardcodedCodes.map(code =>
+        FLAGS.find(flag => flag.code === code)!
+      )
+    }
+
     const rng = createSeededRNG(dayNumber)
-    
+
     // Fisher–Yates shuffle
     const shuffled = [...FLAGS]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
-    
+
     return shuffled.slice(0, 5)
   }, [])
 
@@ -40,7 +53,7 @@ export const useGameLogic = () => {
     const lastPlayed = localStorage.getItem('flag-game-last-played')
     const savedScore = localStorage.getItem('flag-game-score')
     const savedAnswers = localStorage.getItem('flag-game-answers')
-    
+
     if (lastPlayed === today && savedScore !== null && savedAnswers !== null) {
       setHasPlayedToday(true)
       setScore(parseInt(savedScore, 10))
@@ -53,17 +66,17 @@ export const useGameLogic = () => {
   const submitGuess = (guess: string): boolean => {
     const currentFlag = dailyFlags[currentFlagIndex]
     const normalizedGuess = normalizeAnswer(guess)
-    const isCorrect = normalizedGuess === normalizeAnswer(currentFlag.country) || 
+    const isCorrect = normalizedGuess === normalizeAnswer(currentFlag.country) ||
                      normalizedGuess === normalizeAnswer(currentFlag.countryFr)
-    
+
     const newAnswers = [...userAnswers]
     newAnswers[currentFlagIndex] = isCorrect
     setUserAnswers(newAnswers)
-    
+
     if (isCorrect) {
       setScore(prev => prev + 1)
     }
-    
+
     return isCorrect
   }
 

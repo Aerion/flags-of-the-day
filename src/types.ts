@@ -16,7 +16,6 @@ export interface FlagData {
 // Based on hashes of the svg flags
 const EXCLUDED_CODES = new Set([
   // French territories sharing flag with France (FR)
-  'BL', // Saint Barthélemy
   'GF', // French Guiana
   'GP', // Guadeloupe
   'MF', // Saint Martin
