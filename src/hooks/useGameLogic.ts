@@ -7,6 +7,7 @@ export const useGameLogic = () => {
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [userAnswers, setUserAnswers] = useState<boolean[]>([])
+  const [guessedCodes, setGuessedCodes] = useState<(string | null)[]>([])
   const [hasPlayedToday, setHasPlayedToday] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
 
@@ -73,6 +74,14 @@ export const useGameLogic = () => {
     newAnswers[currentFlagIndex] = isCorrect
     setUserAnswers(newAnswers)
 
+    const guessedFlag = FLAGS.find(f =>
+      normalizeAnswer(f.country) === normalizedGuess ||
+      normalizeAnswer(f.countryFr) === normalizedGuess
+    )
+    const newGuessedCodes = [...guessedCodes]
+    newGuessedCodes[currentFlagIndex] = guessedFlag?.code ?? null
+    setGuessedCodes(newGuessedCodes)
+
     if (isCorrect) {
       setScore(prev => prev + 1)
     }
@@ -89,6 +98,14 @@ export const useGameLogic = () => {
     localStorage.setItem('flag-game-last-played', today)
     localStorage.setItem('flag-game-score', score.toString())
     localStorage.setItem('flag-game-answers', JSON.stringify(userAnswers))
+
+    const history = JSON.parse(localStorage.getItem('fotd_history') ?? '{}')
+    history[today] = dailyFlags.map((flag, i) => ({
+      c: flag.code,
+      guess: guessedCodes[i] ?? null
+    }))
+    localStorage.setItem('fotd_history', JSON.stringify(history))
+
     setHasPlayedToday(true)
   }
 
