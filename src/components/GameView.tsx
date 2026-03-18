@@ -45,6 +45,7 @@ const GameView: React.FC<GameViewProps> = ({
   }, [query, fuse])
 
   const currentFlag = dailyFlags[currentFlagIndex]
+  const [flagImageLoaded, setFlagImageLoaded] = useState(false)
 
   // Check if input matches any valid country
   const isValidCountry = useMemo(() => {
@@ -61,6 +62,7 @@ const GameView: React.FC<GameViewProps> = ({
     setQuery('')
     setGameState('input')
     setFeedback(null)
+    setFlagImageLoaded(false)
     resetAnimations()
     // Focus the input after state updates
     setTimeout(() => {
@@ -124,7 +126,15 @@ const GameView: React.FC<GameViewProps> = ({
             }`}
           >
             {currentFlag && (
-              <img src={`/flags/${currentFlag.code}.svg`} alt="" />
+              <>
+                {!flagImageLoaded && <div className="flag-placeholder" />}
+                <img
+                  src={`/flags/${currentFlag.code}.svg`}
+                  alt=""
+                  style={{ display: flagImageLoaded ? undefined : 'none' }}
+                  onLoad={() => setFlagImageLoaded(true)}
+                />
+              </>
             )}
             {feedback && !feedback.isCorrect && (
               <div className="flag-name-overlay">
