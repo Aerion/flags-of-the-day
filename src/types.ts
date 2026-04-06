@@ -29,6 +29,7 @@ const EXCLUDED_CODES = new Set([
   'SH', // Saint Helena (shares flag with GB)
   'DG', // Diego Garcia (shares flag with IO),
   'SJ', // Svalbard and Jan Mayen (shares flag with NO)
+  'BQ', // Bonaire, Sint Eustatius and Saba (shares flag with NL)
 ])
 
 const countryCodes = Object.keys(countries.getNames('en', { select: 'official' }))

@@ -42,3 +42,22 @@ This is a React-based "Flag of the Day" game built with TypeScript and Vite. The
 - Keyboard navigation support for autocomplete (arrow keys, enter, escape)
 - LocalStorage persistence prevents multiple plays per day
 - TypeScript strict mode enabled with comprehensive linting rules
+
+## Maintenance Tasks
+
+### Excluding a territory that shares its flag with another country
+
+Add its ISO 3166-1 alpha-2 code (uppercase) to `EXCLUDED_CODES` in `src/types.ts`.
+
+### Fixing a wrong flag for a specific day
+
+If a bad flag was already drawn for today and needs replacing:
+
+1. Compute the day number: days between `2025-08-01` and today (inclusive of today) + 1.
+   - Formula: `Math.floor((Date.UTC(Y,M-1,D) - Date.UTC(2025,7,1)) / 86400000) + 1`
+2. Add an entry to `HARDCODED_DAYS` in `src/hooks/useGameLogic.ts`:
+   ```ts
+   249: ['ls', 'br', 'rs', 'nl', 'jp'], // example: day 249 = 2026-04-06
+   ```
+   Use lowercase ISO codes in the desired order. The existing shuffled result is fully replaced.
+3. Run `pnpm build` to verify.

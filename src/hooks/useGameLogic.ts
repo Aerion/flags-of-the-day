@@ -13,7 +13,8 @@ export const useGameLogic = () => {
 
   // Hardcoded lists for specific days
   const HARDCODED_DAYS: Record<number, string[]> = {
-    199: ['fm', 'gm', 'mq', 'jp', 'vg']
+    199: ['fm', 'gm', 'mq', 'jp', 'vg'],
+    249: ['ls', 'br', 'rs', 'nl', 'jp'],
   }
 
   const createSeededRNG = (seed: number) => {
