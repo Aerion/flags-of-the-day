@@ -13,6 +13,7 @@ const FlagGame: React.FC = () => {
     hasPlayedToday,
     gameStarted,
     dailyFlags,
+    dayNumber,
     submitGuess,
     nextFlag,
     saveGameData
@@ -43,6 +44,7 @@ const FlagGame: React.FC = () => {
           score={score}
           dailyFlags={dailyFlags}
           userAnswers={userAnswers}
+          dayNumber={dayNumber}
         />
       )}
     </div>

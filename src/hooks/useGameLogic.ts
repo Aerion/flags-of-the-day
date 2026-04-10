@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { FLAGS } from '../types'
 import { getTodayString, getDayNumber } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
@@ -10,6 +10,10 @@ export const useGameLogic = () => {
   const [guessedCodes, setGuessedCodes] = useState<(string | null)[]>([])
   const [hasPlayedToday, setHasPlayedToday] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
+
+  // Snapshot the date at mount time so saveGameData uses the same date as dailyFlags,
+  // even if the user finishes playing after UTC midnight.
+  const gameDateRef = useRef(getTodayString())
 
   // Hardcoded lists for specific days
   const HARDCODED_DAYS: Record<number, string[]> = {
@@ -27,18 +31,19 @@ export const useGameLogic = () => {
     }
   }
 
-  const dailyFlags = useMemo(() => {
-    const dayNumber = getDayNumber()
+  const { dailyFlags, dayNumber } = useMemo(() => {
+    const dn = getDayNumber()
 
     // Check for hardcoded days
-    const hardcodedCodes = HARDCODED_DAYS[dayNumber]
+    const hardcodedCodes = HARDCODED_DAYS[dn]
     if (hardcodedCodes) {
-      return hardcodedCodes.map(code =>
-        FLAGS.find(flag => flag.code === code)!
-      )
+      return {
+        dailyFlags: hardcodedCodes.map(code => FLAGS.find(flag => flag.code === code)!),
+        dayNumber: dn,
+      }
     }
 
-    const rng = createSeededRNG(dayNumber)
+    const rng = createSeededRNG(dn)
 
     // Fisher–Yates shuffle
     const shuffled = [...FLAGS]
@@ -47,7 +52,7 @@ export const useGameLogic = () => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
 
-    return shuffled.slice(0, 5)
+    return { dailyFlags: shuffled.slice(0, 5), dayNumber: dn }
   }, [])
 
   const checkIfPlayedToday = () => {
@@ -95,13 +100,13 @@ export const useGameLogic = () => {
   }
 
   const saveGameData = () => {
-    const today = getTodayString()
-    localStorage.setItem('flag-game-last-played', today)
+    const gameDate = gameDateRef.current
+    localStorage.setItem('flag-game-last-played', gameDate)
     localStorage.setItem('flag-game-score', score.toString())
     localStorage.setItem('flag-game-answers', JSON.stringify(userAnswers))
 
     const history = JSON.parse(localStorage.getItem('fotd_history') ?? '{}')
-    history[today] = dailyFlags.map((flag, i) => ({
+    history[gameDate] = dailyFlags.map((flag, i) => ({
       c: flag.code,
       guess: guessedCodes[i] ?? null
     }))
@@ -123,6 +128,7 @@ export const useGameLogic = () => {
     hasPlayedToday,
     gameStarted,
     dailyFlags,
+    dayNumber,
     submitGuess,
     nextFlag,
     saveGameData

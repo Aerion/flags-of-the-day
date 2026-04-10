@@ -2,18 +2,20 @@ import React, { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
 import type { FlagData } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
-import { getDayNumber, getTimeUntilNextGame } from '../utils/dateUtils'
+import { getTimeUntilNextGame } from '../utils/dateUtils'
 
 interface ResultsViewProps {
   score: number
   dailyFlags: FlagData[]
   userAnswers: boolean[]
+  dayNumber: number
 }
 
 const ResultsView: React.FC<ResultsViewProps> = ({
   score,
   dailyFlags,
-  userAnswers
+  userAnswers,
+  dayNumber
 }) => {
   const { t, language } = useTranslation()
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextGame())
@@ -37,7 +39,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   }, [score])
   const shareResults = async () => {
     const squares = userAnswers.map(isCorrect => isCorrect ? '🟩' : '🟥').join('')
-    const text = `${t('flagOfTheDay')} #${getDayNumber()}: ${score}/5\n${squares}\nhttps://flagsoftheday.aerion.me`
+    const text = `${t('flagOfTheDay')} #${dayNumber}: ${score}/5\n${squares}\nhttps://flagsoftheday.aerion.me`
     
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
@@ -53,7 +55,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   return (
     <div className="results-container">
       <header className="results-header">
-        <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
+        <h1>{t('flagOfTheDay')} #{dayNumber}</h1>
         <p className="final-score">{t('finalScore', { score: score, total: 5 })}</p>
       </header>
       
