@@ -155,9 +155,16 @@ const GameView: React.FC<GameViewProps> = ({
                 id="country-input"
                 placeholder={t('whichCountry')}
                 autoComplete="off"
+                enterKeyHint="done"
                 displayValue={() => query}
                 onChange={(event) => {
                   setQuery(event.target.value)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && isValidCountry && gameState === 'input') {
+                    e.preventDefault()
+                    handleSubmit()
+                  }
                 }}
               />
               {filteredCountries.length > 0 && (
