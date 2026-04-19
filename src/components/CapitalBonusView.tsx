@@ -32,6 +32,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   const { flagCelebrating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
   const [flagImageLoaded, setFlagImageLoaded] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const justSubmittedRef = useRef(false)
 
   const capitalItems = useMemo(() => VALID_CAPITALS.map(c => ({ capital: c })), [])
 
@@ -78,6 +79,10 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   useEffect(() => {
     const handleGlobalKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && bonusState === 'feedback') {
+        if (justSubmittedRef.current) {
+          justSubmittedRef.current = false
+          return
+        }
         e.preventDefault()
         handleNext()
       }
@@ -158,6 +163,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && isValidCapital && bonusState === 'input') {
                     e.preventDefault()
+                    justSubmittedRef.current = true
                     handleSubmit()
                   }
                 }}
