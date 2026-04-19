@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import { Combobox } from '@headlessui/react'
 import Fuse from 'fuse.js'
 import type { FlagData } from '../types'
 import { VALID_CAPITALS } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
-import { useAnimations } from '../hooks/useAnimations'
 import { getDayNumber } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
-
-type BonusState = 'input' | 'feedback'
+import { useRoundState } from '../hooks/useRoundState'
 
 interface CapitalBonusViewProps {
   bonusIndex: number
@@ -26,13 +24,6 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   onBonusComplete,
 }) => {
   const { t, language } = useTranslation()
-  const [query, setQuery] = useState('')
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean } | null>(null)
-  const [bonusState, setBonusState] = useState<BonusState>('input')
-  const { flagCelebrating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
-  const [flagImageLoaded, setFlagImageLoaded] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const justSubmittedRef = useRef(false)
 
   const capitalItems = useMemo(() => VALID_CAPITALS.map(c => ({ capital: c })), [])
 
@@ -43,72 +34,41 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
     ignoreLocation: true,
   }), [capitalItems])
 
+  const isValidCapital = (query: string) => {
+    const trimmed = query.trim()
+    if (!trimmed) return false
+    const normalized = normalizeAnswer(trimmed)
+    return VALID_CAPITALS.some(c => normalizeAnswer(c) === normalized)
+  }
+
+  const {
+    query,
+    setQuery,
+    roundState,
+    feedback,
+    flagImageLoaded,
+    setFlagImageLoaded,
+    handleSubmit,
+    handleNext,
+    inputRef,
+    justSubmittedRef,
+    flagCelebrating,
+    buttonSuccess,
+  } = useRoundState({
+    index: bonusIndex,
+    submitFn: submitCapitalGuess,
+    isValidAnswer: isValidCapital,
+    onComplete: onBonusComplete,
+    onNext: nextCapital,
+  })
+
   const filteredCapitals = useMemo(() => {
     if (query.length < 2) return []
     return fuse.search(query, { limit: 5 }).map(result => result.item.capital)
   }, [query, fuse])
 
   const currentFlag = dailyFlags[bonusIndex]
-
-  const isValidCapital = useMemo(() => {
-    const trimmed = query.trim()
-    if (!trimmed) return false
-    const normalized = normalizeAnswer(trimmed)
-    return VALID_CAPITALS.some(c => normalizeAnswer(c) === normalized)
-  }, [query])
-
-  useEffect(() => {
-    setQuery('')
-    setBonusState('input')
-    setFeedback(null)
-    setFlagImageLoaded(false)
-    resetAnimations()
-    setTimeout(() => {
-      inputRef.current?.focus()
-    }, 0)
-  }, [bonusIndex, resetAnimations])
-
-  const handleNext = () => {
-    if (bonusIndex >= 4) {
-      onBonusComplete()
-    } else {
-      nextCapital()
-    }
-  }
-
-  useEffect(() => {
-    const handleGlobalKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && bonusState === 'feedback') {
-        if (justSubmittedRef.current) {
-          justSubmittedRef.current = false
-          return
-        }
-        e.preventDefault()
-        handleNext()
-      }
-    }
-
-    document.addEventListener('keydown', handleGlobalKeydown)
-    return () => document.removeEventListener('keydown', handleGlobalKeydown)
-  }, [bonusState, bonusIndex, onBonusComplete, nextCapital])
-
-  const handleSubmit = () => {
-    const guess = query.trim()
-    if (!guess) return
-
-    const isCorrect = submitCapitalGuess(guess)
-
-    setFeedback({ isCorrect })
-
-    if (isCorrect) {
-      triggerSuccessAnimation()
-    } else {
-      triggerFeedbackAnimation()
-    }
-
-    setBonusState('feedback')
-  }
-
+  const isValid = isValidCapital(query)
   const countryName = language === 'fr' ? currentFlag.countryFr : currentFlag.country
 
   return (
@@ -148,7 +108,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
           <div id="autocomplete-container" style={{ position: 'relative' }}>
             <Combobox value={query} onChange={(value) => {
               setQuery(value || '')
-            }} disabled={bonusState !== 'input'}>
+            }} disabled={roundState !== 'input'}>
               <Combobox.Input
                 ref={inputRef}
                 key={bonusIndex}
@@ -161,7 +121,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
                   setQuery(event.target.value)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isValidCapital && bonusState === 'input') {
+                  if (e.key === 'Enter' && isValid && roundState === 'input') {
                     e.preventDefault()
                     justSubmittedRef.current = true
                     handleSubmit()
@@ -186,18 +146,18 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
             </Combobox>
           </div>
 
-          {bonusState === 'input' && (
+          {roundState === 'input' && (
             <button
               id="main-btn"
               className={buttonSuccess ? 'button-success' : ''}
               onClick={handleSubmit}
-              disabled={!isValidCapital}
+              disabled={!isValid}
             >
               {t('submit')}
             </button>
           )}
 
-          {bonusState === 'feedback' && (
+          {roundState === 'feedback' && (
             <button id="main-btn" onClick={handleNext}>
               {bonusIndex >= 4 ? t('finishBonus') : t('nextCapital')}
             </button>

@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import { Combobox } from '@headlessui/react'
 import Fuse from 'fuse.js'
 import type { FlagData } from '../types'
 import { FLAGS } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
-import { useAnimations } from '../hooks/useAnimations'
 import { getDayNumber } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
-
-type GameState = 'input' | 'feedback' | 'complete'
+import { useRoundState } from '../hooks/useRoundState'
 
 interface GameViewProps {
   currentFlagIndex: number
@@ -26,12 +24,6 @@ const GameView: React.FC<GameViewProps> = ({
   onGameComplete
 }) => {
   const { t, language } = useTranslation()
-  const [query, setQuery] = useState('')
-  const [feedback, setFeedback] = useState<{ message: string; isCorrect: boolean } | null>(null)
-  const [gameState, setGameState] = useState<GameState>('input')
-  const { flagCelebrating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const justSubmittedRef = useRef(false)
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
     keys: language === 'fr' ? ['countryFr'] : ['country'],
@@ -40,16 +32,7 @@ const GameView: React.FC<GameViewProps> = ({
     ignoreLocation: true,
   }), [language])
 
-  const filteredCountries = useMemo(() => {
-    if (query.length < 2) return []
-    return fuse.search(query, { limit: 5 }).map(result => result.item)
-  }, [query, fuse])
-
-  const currentFlag = dailyFlags[currentFlagIndex]
-  const [flagImageLoaded, setFlagImageLoaded] = useState(false)
-
-  // Check if input matches any valid country
-  const isValidCountry = useMemo(() => {
+  const isValidCountry = (query: string) => {
     const trimmed = query.trim()
     if (!trimmed) return false
     const normalized = normalizeAnswer(trimmed)
@@ -57,63 +40,36 @@ const GameView: React.FC<GameViewProps> = ({
       normalizeAnswer(flag.country) === normalized ||
       normalizeAnswer(flag.countryFr) === normalized
     )
-  }, [query])
-
-  useEffect(() => {
-    setQuery('')
-    setGameState('input')
-    setFeedback(null)
-    setFlagImageLoaded(false)
-    resetAnimations()
-    // Focus the input after state updates
-    setTimeout(() => {
-      inputRef.current?.focus()
-    }, 0)
-  }, [currentFlagIndex, resetAnimations])
-
-  const handleNext = () => {
-    if (currentFlagIndex >= 4) {
-      onGameComplete()
-    } else {
-      nextFlag()
-    }
   }
 
-  useEffect(() => {
-    const handleGlobalKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && gameState === 'feedback') {
-        if (justSubmittedRef.current) {
-          justSubmittedRef.current = false
-          return
-        }
-        e.preventDefault()
-        handleNext()
-      }
-    }
+  const {
+    query,
+    setQuery,
+    roundState,
+    feedback,
+    flagImageLoaded,
+    setFlagImageLoaded,
+    handleSubmit,
+    handleNext,
+    inputRef,
+    justSubmittedRef,
+    flagCelebrating,
+    buttonSuccess,
+  } = useRoundState({
+    index: currentFlagIndex,
+    submitFn: submitGuess,
+    isValidAnswer: isValidCountry,
+    onComplete: onGameComplete,
+    onNext: nextFlag,
+  })
 
-    document.addEventListener('keydown', handleGlobalKeydown)
-    return () => document.removeEventListener('keydown', handleGlobalKeydown)
-  }, [gameState, currentFlagIndex, onGameComplete, nextFlag])
+  const filteredCountries = useMemo(() => {
+    if (query.length < 2) return []
+    return fuse.search(query, { limit: 5 }).map(result => result.item)
+  }, [query, fuse])
 
-  const handleSubmit = () => {
-    const guess = query.trim()
-    if (!guess) return
-
-    const isCorrect = submitGuess(guess)
-    
-    setFeedback({
-      message: isCorrect ? t('correct') : t('incorrect', { country: language === 'fr' ? currentFlag.countryFr : currentFlag.country }),
-      isCorrect
-    })
-
-    if (isCorrect) {
-      triggerSuccessAnimation()
-    } else {
-      triggerFeedbackAnimation()
-    }
-
-    setGameState('feedback')
-  }
+  const currentFlag = dailyFlags[currentFlagIndex]
+  const isValid = isValidCountry(query)
 
   return (
     <>
@@ -121,11 +77,11 @@ const GameView: React.FC<GameViewProps> = ({
         <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
         <p id="progress">{t('flagProgress', { current: currentFlagIndex + 1, total: 5 })}</p>
       </header>
-      
+
       <main>
         <div id="flag-container">
-          <div 
-            id="flag-display" 
+          <div
+            id="flag-display"
             className={`${flagCelebrating ? 'flag-celebrate' : ''} ${
               feedback ? (feedback.isCorrect ? 'flag-correct' : 'flag-incorrect') : ''
             }`}
@@ -148,12 +104,12 @@ const GameView: React.FC<GameViewProps> = ({
             )}
           </div>
         </div>
-        
+
         <div id="game-area">
           <div id="autocomplete-container" style={{ position: 'relative' }}>
             <Combobox value={query} onChange={(value) => {
               setQuery(value || '')
-            }} disabled={gameState !== 'input'}>
+            }} disabled={roundState !== 'input'}>
               <Combobox.Input
                 ref={inputRef}
                 key={currentFlagIndex}
@@ -166,7 +122,7 @@ const GameView: React.FC<GameViewProps> = ({
                   setQuery(event.target.value)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isValidCountry && gameState === 'input') {
+                  if (e.key === 'Enter' && isValid && roundState === 'input') {
                     e.preventDefault()
                     justSubmittedRef.current = true
                     handleSubmit()
@@ -176,10 +132,10 @@ const GameView: React.FC<GameViewProps> = ({
               {filteredCountries.length > 0 && (
                 <Combobox.Options id="autocomplete-list">
                   {filteredCountries.map((flag) => (
-                    <Combobox.Option 
-                      key={flag.country} 
-                      value={language === 'fr' ? flag.countryFr : flag.country} 
-                      className={({ focus }) => 
+                    <Combobox.Option
+                      key={flag.country}
+                      value={language === 'fr' ? flag.countryFr : flag.country}
+                      className={({ focus }) =>
                         `autocomplete-item ${focus ? 'highlighted' : ''}`
                       }
                     >
@@ -190,19 +146,19 @@ const GameView: React.FC<GameViewProps> = ({
               )}
             </Combobox>
           </div>
-          
-          {gameState === 'input' && (
-            <button 
-              id="main-btn" 
+
+          {roundState === 'input' && (
+            <button
+              id="main-btn"
               className={buttonSuccess ? 'button-success' : ''}
               onClick={handleSubmit}
-              disabled={!isValidCountry}
+              disabled={!isValid}
             >
               {t('submit')}
             </button>
           )}
-          
-          {gameState === 'feedback' && (
+
+          {roundState === 'feedback' && (
             <button id="main-btn" onClick={handleNext}>
               {currentFlagIndex >= 4 ? t('finishGame') : t('nextFlag')}
             </button>
