@@ -2,6 +2,7 @@ import countries from 'i18n-iso-countries'
 import enLocale from 'i18n-iso-countries/langs/en.json'
 import frLocale from 'i18n-iso-countries/langs/fr.json'
 import { countries as countriesData } from 'countries-list'
+import { CAPITALS_FR } from './data/capitalsFr'
 
 // Register locales
 countries.registerLocale(enLocale)
@@ -12,6 +13,7 @@ export interface FlagData {
   countryFr: string
   code: string
   capital: string
+  capitalFr: string
 }
 
 // Territories to exclude: only those that share the same flag content with their parent countries
@@ -41,13 +43,16 @@ export const FLAGS: FlagData[] = countryCodes
     const country = countries.getName(code, 'en') || ''
     const countryFr = countries.getName(code, 'fr') || ''
     const capital = (countriesData as Record<string, { capital?: string }>)[code]?.capital ?? ''
+    const capitalFr = CAPITALS_FR[code] ?? capital
     return {
       country,
       countryFr,
       code: code.toLowerCase(),
       capital,
+      capitalFr,
     }
   })
   .filter((flag: FlagData) => flag.country && flag.countryFr) // Filter out any entries without names
 
-export const VALID_CAPITALS: string[] = [...new Set(FLAGS.map(f => f.capital).filter(Boolean))]
+export const VALID_CAPITALS_FR: string[] = [...new Set(FLAGS.map(f => f.capitalFr).filter(Boolean))]
+export const VALID_CAPITALS_EN: string[] = [...new Set(FLAGS.map(f => f.capital).filter(Boolean))]

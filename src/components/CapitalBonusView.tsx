@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Combobox } from '@headlessui/react'
 import Fuse from 'fuse.js'
 import type { FlagData } from '../types'
-import { VALID_CAPITALS } from '../types'
+import { VALID_CAPITALS_FR, VALID_CAPITALS_EN } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
 import { getDayNumber } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
@@ -25,7 +25,8 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
 }) => {
   const { t, language } = useTranslation()
 
-  const capitalItems = useMemo(() => VALID_CAPITALS.map(c => ({ capital: c })), [])
+  const validCapitals = language === 'fr' ? VALID_CAPITALS_FR : VALID_CAPITALS_EN
+  const capitalItems = useMemo(() => validCapitals.map(c => ({ capital: c })), [validCapitals])
 
   const fuse = useMemo(() => new Fuse(capitalItems, {
     keys: ['capital'],
@@ -38,7 +39,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
     const trimmed = query.trim()
     if (!trimmed) return false
     const normalized = normalizeAnswer(trimmed)
-    return VALID_CAPITALS.some(c => normalizeAnswer(c) === normalized)
+    return validCapitals.some(c => normalizeAnswer(c) === normalized)
   }
 
   const {
@@ -70,6 +71,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   const currentFlag = dailyFlags[bonusIndex]
   const isValid = isValidCapital(query)
   const countryName = language === 'fr' ? currentFlag.countryFr : currentFlag.country
+  const capitalName = language === 'fr' ? currentFlag.capitalFr : currentFlag.capital
 
   return (
     <>
@@ -99,7 +101,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
             )}
             <div className="flag-name-country">{countryName}</div>
             {feedback && !feedback.isCorrect && (
-              <div className="flag-name-overlay">{currentFlag.capital}</div>
+              <div className="flag-name-overlay">{capitalName}</div>
             )}
           </div>
         </div>

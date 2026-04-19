@@ -9,7 +9,7 @@ import CapitalBonusView from './components/CapitalBonusView'
 type Phase = 'playing' | 'results' | 'bonus'
 
 const FlagGame: React.FC = () => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const {
     currentFlagIndex,
     score,
@@ -30,7 +30,7 @@ const FlagGame: React.FC = () => {
     submitCapitalGuess,
     nextCapital,
     saveBonusData,
-  } = useBonusRound(dailyFlags)
+  } = useBonusRound(dailyFlags, language)
 
   const [phase, setPhase] = useState<Phase>('playing')
 

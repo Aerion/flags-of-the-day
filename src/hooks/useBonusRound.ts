@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import type { FlagData } from '../types'
 import { getTodayString } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
+import type { Language } from '../i18n'
 
-export const useBonusRound = (dailyFlags: FlagData[]) => {
+export const useBonusRound = (dailyFlags: FlagData[], language: Language) => {
   const [bonusIndex, setBonusIndex] = useState(0)
   const [bonusAnswers, setBonusAnswers] = useState<boolean[]>([])
   const [hasPlayedBonus, setHasPlayedBonus] = useState(false)
@@ -21,7 +22,8 @@ export const useBonusRound = (dailyFlags: FlagData[]) => {
 
   const submitCapitalGuess = (guess: string): boolean => {
     const currentFlag = dailyFlags[bonusIndex]
-    const isCorrect = normalizeAnswer(guess) === normalizeAnswer(currentFlag.capital)
+    const expectedCapital = language === 'fr' ? currentFlag.capitalFr : currentFlag.capital
+    const isCorrect = normalizeAnswer(guess) === normalizeAnswer(expectedCapital)
 
     const newAnswers = [...bonusAnswers]
     newAnswers[bonusIndex] = isCorrect
