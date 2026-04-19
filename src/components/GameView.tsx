@@ -31,6 +31,7 @@ const GameView: React.FC<GameViewProps> = ({
   const [gameState, setGameState] = useState<GameState>('input')
   const { flagCelebrating, buttonSuccess, triggerSuccessAnimation, triggerFeedbackAnimation, resetAnimations } = useAnimations()
   const inputRef = useRef<HTMLInputElement>(null)
+  const justSubmittedRef = useRef(false)
 
   const fuse = useMemo(() => new Fuse(FLAGS, {
     keys: language === 'fr' ? ['countryFr'] : ['country'],
@@ -81,6 +82,10 @@ const GameView: React.FC<GameViewProps> = ({
   useEffect(() => {
     const handleGlobalKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && gameState === 'feedback') {
+        if (justSubmittedRef.current) {
+          justSubmittedRef.current = false
+          return
+        }
         e.preventDefault()
         handleNext()
       }
@@ -163,12 +168,7 @@ const GameView: React.FC<GameViewProps> = ({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && isValidCountry && gameState === 'input') {
                     e.preventDefault()
-                    // Stop native propagation so the document-level keydown listener
-                    // (which handles Enter in feedback state) doesn't fire for this
-                    // same event. HeadlessUI calls flushSync when selecting a dropdown
-                    // option, which re-registers the document listener with
-                    // gameState='feedback' before the event finishes bubbling.
-                    e.nativeEvent.stopImmediatePropagation()
+                    justSubmittedRef.current = true
                     handleSubmit()
                   }
                 }}
