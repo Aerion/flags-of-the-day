@@ -16,5 +16,12 @@ export const fr: TranslationKeys = {
   shareResults: 'Partager les Résultats',
   nextGameIn: 'Prochaine partie dans :',
   resultsCopied: 'Résultats copiés dans le presse-papiers !',
-  copyToShare: 'Copiez ce texte pour partager :'
+  copyToShare: 'Copiez ce texte pour partager :',
+  playBonusRound: 'Deviner les capitales',
+  whichCapital: 'Quelle est la capitale ?',
+  capitalProgress: 'Capitale {current} sur {total}',
+  nextCapital: 'Capitale Suivante',
+  finishBonus: 'Terminer le bonus',
+  capitalCorrect: '🎉 Correct !',
+  capitalIncorrect: '❌ Incorrect. La capitale était {capital}',
 }

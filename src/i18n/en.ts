@@ -14,7 +14,14 @@ export const en = {
   shareResults: 'Share Results',
   nextGameIn: 'Next game in:',
   resultsCopied: 'Results copied to clipboard!',
-  copyToShare: 'Copy this text to share:'
+  copyToShare: 'Copy this text to share:',
+  playBonusRound: 'Guess the Capitals',
+  whichCapital: 'What is the capital?',
+  capitalProgress: 'Capital {current} of {total}',
+  nextCapital: 'Next Capital',
+  finishBonus: 'Finish Bonus',
+  capitalCorrect: '🎉 Correct!',
+  capitalIncorrect: '❌ Incorrect. The capital was {capital}',
 }
 
 export type TranslationKeys = typeof en

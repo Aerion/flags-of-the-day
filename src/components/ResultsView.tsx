@@ -9,13 +9,17 @@ interface ResultsViewProps {
   dailyFlags: FlagData[]
   userAnswers: boolean[]
   dayNumber: number
+  bonusAnswers?: boolean[]
+  onPlayBonus?: () => void
 }
 
 const ResultsView: React.FC<ResultsViewProps> = ({
   score,
   dailyFlags,
   userAnswers,
-  dayNumber
+  dayNumber,
+  bonusAnswers,
+  onPlayBonus,
 }) => {
   const { t, language } = useTranslation()
   const [timeLeft, setTimeLeft] = useState(getTimeUntilNextGame())
@@ -28,7 +32,6 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   }, [getTimeUntilNextGame])
 
   useEffect(() => {
-    // Simple confetti for perfect score only
     if (score === 5) {
       confetti({
         particleCount: 50,
@@ -37,10 +40,22 @@ const ResultsView: React.FC<ResultsViewProps> = ({
       })
     }
   }, [score])
+
+  const bonusScore = bonusAnswers?.filter(Boolean).length ?? 0
+  const totalScore = bonusAnswers !== undefined ? score + bonusScore : score
+  const totalOutOf = bonusAnswers !== undefined ? 10 : 5
+
   const shareResults = async () => {
-    const squares = userAnswers.map(isCorrect => isCorrect ? '🟩' : '🟥').join('')
-    const text = `${t('flagOfTheDay')} #${dayNumber}: ${score}/5\n${squares}\nhttps://flagsoftheday.aerion.me`
-    
+    const flagSquares = userAnswers.map(c => c ? '🟩' : '🟥').join('')
+    const capitalSquares = bonusAnswers?.map(c => c ? '🟩' : '🟥').join('')
+    const shareTitle = language === 'fr' ? 'Drapeaux du Jour' : 'Flags of the Day'
+
+    let text = `${shareTitle} #${dayNumber}: ${totalScore}/${totalOutOf}\n🏁 ${flagSquares}`
+    if (capitalSquares) {
+      text += `\n🏙️ ${capitalSquares}`
+    }
+    text += `\nhttps://flagsoftheday.aerion.me`
+
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         alert(t('resultsCopied'))
@@ -56,32 +71,46 @@ const ResultsView: React.FC<ResultsViewProps> = ({
     <div className="results-container">
       <header className="results-header">
         <h1>{t('flagOfTheDay')} #{dayNumber}</h1>
-        <p className="final-score">{t('finalScore', { score: score, total: 5 })}</p>
+        <p className="final-score">{t('finalScore', { score: totalScore, total: totalOutOf })}</p>
       </header>
-      
+
       <div className="results-content">
         <div className="flag-grid">
           {dailyFlags.map((flag, index) => {
             const isCorrect = userAnswers[index]
+            const capitalCorrect = bonusAnswers?.[index]
+            const countryName = language === 'fr' ? flag.countryFr : flag.country
             return (
               <div
                 key={flag.country}
                 className={`flag-item ${isCorrect ? 'correct' : 'incorrect'} flag-item-enter`}
-                style={{ 
+                style={{
                   animationDelay: `${index * 150}ms`
                 }}
               >
                 <span className="flag-emoji">
                   <img src={`/flags/${flag.code}.svg`} alt="" />
                 </span>
-                <span className="flag-country">{language === 'fr' ? flag.countryFr : flag.country}</span>
-                <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>
-                  {isCorrect ? '✓' : '✗'}
+                <span className="flag-country">
+                  {countryName}
+                  {bonusAnswers !== undefined && (
+                    <span className="flag-capital">{flag.capital}</span>
+                  )}
+                </span>
+                <div className="flag-results-col">
+                  <div className={`flag-result ${isCorrect ? 'correct' : 'incorrect'}`}>
+                    {isCorrect ? '✓' : '✗'}
+                  </div>
+                  {bonusAnswers !== undefined && (
+                    <div className={`flag-result ${capitalCorrect ? 'correct' : 'incorrect'}`}>
+                      {capitalCorrect ? '✓' : '✗'}
+                    </div>
+                  )}
                 </div>
               </div>
             )
           })}
-          
+
           <div className="countdown-item">
             <div className="countdown-content">
               <p className="next-game-info">{t('nextGameIn')}</p>
@@ -93,10 +122,17 @@ const ResultsView: React.FC<ResultsViewProps> = ({
             </div>
           </div>
         </div>
-        
-        <button className="share-btn" onClick={shareResults}>
-          {t('shareResults')}
-        </button>
+
+        <div className="results-actions">
+          {onPlayBonus && (
+            <button className="bonus-btn" onClick={onPlayBonus}>
+              {t('playBonusRound')}
+            </button>
+          )}
+          <button className="share-btn" onClick={shareResults}>
+            {t('shareResults')}
+          </button>
+        </div>
       </div>
     </div>
   )

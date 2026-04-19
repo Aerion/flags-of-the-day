@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGameLogic } from './hooks/useGameLogic'
+import { useBonusRound } from './hooks/useBonusRound'
 import { useTranslation } from './hooks/useTranslation'
 import GameView from './components/GameView'
 import ResultsView from './components/ResultsView'
+import CapitalBonusView from './components/CapitalBonusView'
+
+type Phase = 'playing' | 'results' | 'bonus'
 
 const FlagGame: React.FC = () => {
   const { t } = useTranslation()
@@ -19,10 +23,35 @@ const FlagGame: React.FC = () => {
     saveGameData
   } = useGameLogic()
 
-  const isGameComplete = hasPlayedToday || currentFlagIndex >= 5
+  const {
+    bonusIndex,
+    bonusAnswers,
+    hasPlayedBonus,
+    submitCapitalGuess,
+    nextCapital,
+    saveBonusData,
+  } = useBonusRound(dailyFlags)
+
+  const [phase, setPhase] = useState<Phase>('playing')
+
+  useEffect(() => {
+    if (hasPlayedToday) {
+      setPhase('results')
+    }
+  }, [hasPlayedToday])
 
   const handleGameComplete = () => {
     saveGameData()
+    setPhase('results')
+  }
+
+  const handlePlayBonus = () => {
+    setPhase('bonus')
+  }
+
+  const handleBonusComplete = () => {
+    saveBonusData()
+    setPhase('results')
   }
 
   if (!gameStarted && !hasPlayedToday) {
@@ -31,7 +60,7 @@ const FlagGame: React.FC = () => {
 
   return (
     <div id="app">
-      {!isGameComplete ? (
+      {phase === 'playing' && (
         <GameView
           currentFlagIndex={currentFlagIndex}
           dailyFlags={dailyFlags}
@@ -39,12 +68,24 @@ const FlagGame: React.FC = () => {
           nextFlag={nextFlag}
           onGameComplete={handleGameComplete}
         />
-      ) : (
+      )}
+      {phase === 'results' && (
         <ResultsView
           score={score}
           dailyFlags={dailyFlags}
           userAnswers={userAnswers}
           dayNumber={dayNumber}
+          bonusAnswers={hasPlayedBonus ? bonusAnswers : undefined}
+          onPlayBonus={hasPlayedBonus ? undefined : handlePlayBonus}
+        />
+      )}
+      {phase === 'bonus' && (
+        <CapitalBonusView
+          bonusIndex={bonusIndex}
+          dailyFlags={dailyFlags}
+          submitCapitalGuess={submitCapitalGuess}
+          nextCapital={nextCapital}
+          onBonusComplete={handleBonusComplete}
         />
       )}
     </div>
