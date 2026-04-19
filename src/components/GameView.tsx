@@ -163,6 +163,12 @@ const GameView: React.FC<GameViewProps> = ({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && isValidCountry && gameState === 'input') {
                     e.preventDefault()
+                    // Stop native propagation so the document-level keydown listener
+                    // (which handles Enter in feedback state) doesn't fire for this
+                    // same event. HeadlessUI calls flushSync when selecting a dropdown
+                    // option, which re-registers the document listener with
+                    // gameState='feedback' before the event finishes bubbling.
+                    e.nativeEvent.stopImmediatePropagation()
                     handleSubmit()
                   }
                 }}
