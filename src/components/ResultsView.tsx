@@ -80,10 +80,13 @@ const ResultsView: React.FC<ResultsViewProps> = ({
             const isCorrect = userAnswers[index]
             const capitalCorrect = bonusAnswers?.[index]
             const countryName = language === 'fr' ? flag.countryFr : flag.country
+            const itemClass = bonusAnswers !== undefined && isCorrect !== capitalCorrect
+              ? 'partial'
+              : isCorrect ? 'correct' : 'incorrect'
             return (
               <div
                 key={flag.country}
-                className={`flag-item ${isCorrect ? 'correct' : 'incorrect'} flag-item-enter`}
+                className={`flag-item ${itemClass} flag-item-enter`}
                 style={{
                   animationDelay: `${index * 150}ms`
                 }}

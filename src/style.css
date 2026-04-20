@@ -647,6 +647,11 @@ button:disabled::before {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+.flag-item.partial {
+  background-color: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
 .flag-emoji {
   line-height: 1;
   display: flex;
