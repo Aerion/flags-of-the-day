@@ -19,6 +19,7 @@ export const useGameLogic = () => {
   const HARDCODED_DAYS: Record<number, string[]> = {
     199: ['fm', 'gm', 'mq', 'jp', 'vg'],
     249: ['ls', 'br', 'rs', 'nl', 'jp'],
+    271: ['gr', 'us', 'bo', 'fm', 'ky'], // day 271 = 2026-04-28, replaced UM with US
   }
 
   const createSeededRNG = (seed: number) => {

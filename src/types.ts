@@ -34,6 +34,7 @@ const EXCLUDED_CODES = new Set([
   'DG', // Diego Garcia (shares flag with IO),
   'SJ', // Svalbard and Jan Mayen (shares flag with NO)
   'BQ', // Bonaire, Sint Eustatius and Saba (shares flag with NL)
+  'UM', // United States Minor Outlying Islands (shares flag with US)
 ])
 
 const countryCodes = Object.keys(countries.getNames('en', { select: 'official' }))

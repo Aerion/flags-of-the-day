@@ -47,7 +47,8 @@ This is a React-based "Flag of the Day" game built with TypeScript and Vite. The
 
 ### Excluding a territory that shares its flag with another country
 
-Add its ISO 3166-1 alpha-2 code (uppercase) to `EXCLUDED_CODES` in `src/types.ts`.
+1. Add its ISO 3166-1 alpha-2 code (uppercase) to `EXCLUDED_CODES` in `src/types.ts`.
+2. Check if it was drawn for today (or any affected day) by simulating the RNG — excluding the code changes the FLAGS array length and shifts all draws. If it was drawn, add a `HARDCODED_DAYS` entry replacing it with the intended country (see *Fixing a wrong flag* below).
 
 ### Fixing a wrong flag for a specific day
 
