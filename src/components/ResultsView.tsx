@@ -56,7 +56,9 @@ const ResultsView: React.FC<ResultsViewProps> = ({
     }
     text += `\nhttps://flagsoftheday.aerion.me`
 
-    if (navigator.clipboard) {
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {})
+    } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         alert(t('resultsCopied'))
       }).catch(() => {
