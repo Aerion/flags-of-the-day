@@ -12,6 +12,7 @@ interface CapitalBonusViewProps {
   bonusIndex: number
   dailyFlags: FlagData[]
   submitCapitalGuess: (guess: string) => boolean
+  skipCapital: () => void
   nextCapital: () => void
   onBonusComplete: () => void
 }
@@ -20,6 +21,7 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   bonusIndex,
   dailyFlags,
   submitCapitalGuess,
+  skipCapital,
   nextCapital,
   onBonusComplete,
 }) => {
@@ -72,6 +74,45 @@ const CapitalBonusView: React.FC<CapitalBonusViewProps> = ({
   const isValid = isValidCapital(query)
   const countryName = language === 'fr' ? currentFlag.countryFr : currentFlag.country
   const capitalName = language === 'fr' ? currentFlag.capitalFr : currentFlag.capital
+
+  if (!currentFlag.capital) {
+    const handleSkip = () => {
+      skipCapital()
+      handleNext()
+    }
+    return (
+      <>
+        <header>
+          <h1>{t('flagOfTheDay')} #{getDayNumber()}</h1>
+          <p id="progress">{t('capitalProgress', { current: bonusIndex + 1, total: 5 })}</p>
+        </header>
+        <main>
+          <div id="flag-container">
+            <div id="flag-display">
+              {currentFlag && (
+                <>
+                  {!flagImageLoaded && <div className="flag-placeholder" />}
+                  <img
+                    src={`/flags/${currentFlag.code}.svg`}
+                    alt=""
+                    style={{ display: flagImageLoaded ? undefined : 'none' }}
+                    onLoad={() => setFlagImageLoaded(true)}
+                  />
+                </>
+              )}
+              <div className="flag-name-country">{countryName}</div>
+            </div>
+          </div>
+          <div id="game-area">
+            <p>{t('noCapital')}</p>
+            <button id="main-btn" onClick={handleSkip}>
+              {bonusIndex >= 4 ? t('finishBonus') : t('nextCapital')}
+            </button>
+          </div>
+        </main>
+      </>
+    )
+  }
 
   return (
     <>

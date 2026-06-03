@@ -37,13 +37,17 @@ const EXCLUDED_CODES = new Set([
   'UM', // United States Minor Outlying Islands (shares flag with US)
 ])
 
+const CAPITAL_OVERRIDES: Record<string, string> = {
+  MO: 'Macao',
+}
+
 const countryCodes = Object.keys(countries.getNames('en', { select: 'official' }))
 export const FLAGS: FlagData[] = countryCodes
   .filter((code: string) => !EXCLUDED_CODES.has(code))
   .map((code: string) => {
     const country = countries.getName(code, 'en') || ''
     const countryFr = countries.getName(code, 'fr') || ''
-    const capital = (countriesData as Record<string, { capital?: string }>)[code]?.capital ?? ''
+    const capital = CAPITAL_OVERRIDES[code] ?? (countriesData as Record<string, { capital?: string }>)[code]?.capital ?? ''
     const capitalFr = CAPITALS_FR[code] ?? capital
     return {
       country,

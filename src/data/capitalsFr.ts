@@ -120,6 +120,7 @@ export const CAPITALS_FR: Record<string, string> = {
   ML: 'Bamako',
   MM: 'Naypyidaw',
   MN: 'Oulan-Bator',
+  MO: 'Macao',
   MR: 'Nouakchott',
   MT: 'La Valette',
   MU: 'Port-Louis',

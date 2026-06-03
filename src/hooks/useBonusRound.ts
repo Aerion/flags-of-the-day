@@ -32,6 +32,12 @@ export const useBonusRound = (dailyFlags: FlagData[], language: Language) => {
     return isCorrect
   }
 
+  const skipCapital = () => {
+    const newAnswers = [...bonusAnswers]
+    newAnswers[bonusIndex] = true
+    setBonusAnswers(newAnswers)
+  }
+
   const nextCapital = () => {
     setBonusIndex(prev => prev + 1)
   }
@@ -47,6 +53,7 @@ export const useBonusRound = (dailyFlags: FlagData[], language: Language) => {
     bonusAnswers,
     hasPlayedBonus,
     submitCapitalGuess,
+    skipCapital,
     nextCapital,
     saveBonusData,
   }

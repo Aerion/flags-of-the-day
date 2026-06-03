@@ -24,4 +24,5 @@ export const fr: TranslationKeys = {
   finishBonus: 'Terminer le bonus',
   capitalCorrect: '🎉 Correct !',
   capitalIncorrect: '❌ Incorrect. La capitale était {capital}',
+  noCapital: 'Ce territoire n\'a pas de capitale.',
 }

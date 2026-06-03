@@ -28,6 +28,7 @@ const FlagGame: React.FC = () => {
     bonusAnswers,
     hasPlayedBonus,
     submitCapitalGuess,
+    skipCapital,
     nextCapital,
     saveBonusData,
   } = useBonusRound(dailyFlags, language)
@@ -84,6 +85,7 @@ const FlagGame: React.FC = () => {
           bonusIndex={bonusIndex}
           dailyFlags={dailyFlags}
           submitCapitalGuess={submitCapitalGuess}
+          skipCapital={skipCapital}
           nextCapital={nextCapital}
           onBonusComplete={handleBonusComplete}
         />

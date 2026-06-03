@@ -98,7 +98,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
                 </span>
                 <span className="flag-country">
                   {countryName}
-                  {bonusAnswers !== undefined && (
+                  {bonusAnswers !== undefined && (language === 'fr' ? flag.capitalFr : flag.capital) && (
                     <span className="flag-capital">{language === 'fr' ? flag.capitalFr : flag.capital}</span>
                   )}
                 </span>

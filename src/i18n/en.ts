@@ -22,6 +22,7 @@ export const en = {
   finishBonus: 'Finish Bonus',
   capitalCorrect: '🎉 Correct!',
   capitalIncorrect: '❌ Incorrect. The capital was {capital}',
+  noCapital: 'This territory has no capital city.',
 }
 
 export type TranslationKeys = typeof en
