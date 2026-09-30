@@ -14,6 +14,7 @@ export const fr: TranslationKeys = {
   finalScore: 'Vous avez obtenu {score} sur {total} !',
   todaysFlags: "Drapeaux d'aujourd'hui :",
   shareResults: 'Partager les Résultats',
+  copyResults: 'Copier les Résultats',
   nextGameIn: 'Prochaine partie dans :',
   resultsCopied: 'Résultats copiés dans le presse-papiers !',
   copyToShare: 'Copiez ce texte pour partager :',

@@ -44,6 +44,8 @@ const ResultsView: React.FC<ResultsViewProps> = ({
   const bonusScore = bonusAnswers?.filter(Boolean).length ?? 0
   const totalScore = bonusAnswers !== undefined ? score + bonusScore : score
   const totalOutOf = bonusAnswers !== undefined ? 10 : 5
+  const canShareResults = typeof navigator.share === 'function'
+    && window.matchMedia('(hover: none) and (pointer: coarse)').matches
 
   const shareResults = async () => {
     const flagSquares = userAnswers.map(c => c ? '🟩' : '🟥').join('')
@@ -56,7 +58,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
     }
     text += `\nhttps://flagsoftheday.aerion.me`
 
-    if (navigator.share) {
+    if (canShareResults) {
       navigator.share({ text }).catch(() => {})
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
@@ -135,7 +137,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
             </button>
           )}
           <button className="share-btn" onClick={shareResults}>
-            {t('shareResults')}
+            {t(canShareResults ? 'shareResults' : 'copyResults')}
           </button>
         </div>
       </div>

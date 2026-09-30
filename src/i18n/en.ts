@@ -12,6 +12,7 @@ export const en = {
   finalScore: 'You scored {score} out of {total}!',
   todaysFlags: "Today's Flags:",
   shareResults: 'Share Results',
+  copyResults: 'Copy Results',
   nextGameIn: 'Next game in:',
   resultsCopied: 'Results copied to clipboard!',
   copyToShare: 'Copy this text to share:',
