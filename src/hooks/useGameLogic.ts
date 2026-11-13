@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { FLAGS } from '../types'
 import { getTodayString, getDayNumber } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
+import { readSavedAnswers, saveAnswers, saveHistoryEntry, writeStoredValue } from '../utils/storage'
 
 export const useGameLogic = () => {
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
@@ -58,14 +59,12 @@ export const useGameLogic = () => {
 
   const checkIfPlayedToday = () => {
     const today = getTodayString()
-    const lastPlayed = localStorage.getItem('flag-game-last-played')
-    const savedScore = localStorage.getItem('flag-game-score')
-    const savedAnswers = localStorage.getItem('flag-game-answers')
+    const savedAnswers = readSavedAnswers('flag-game-last-played', 'flag-game-answers', today)
 
-    if (lastPlayed === today && savedScore !== null && savedAnswers !== null) {
+    if (savedAnswers !== null) {
       setHasPlayedToday(true)
-      setScore(parseInt(savedScore, 10))
-      setUserAnswers(JSON.parse(savedAnswers))
+      setScore(savedAnswers.filter(Boolean).length)
+      setUserAnswers(savedAnswers)
       return true
     }
     return false
@@ -102,16 +101,12 @@ export const useGameLogic = () => {
 
   const saveGameData = () => {
     const gameDate = gameDateRef.current
-    localStorage.setItem('flag-game-last-played', gameDate)
-    localStorage.setItem('flag-game-score', score.toString())
-    localStorage.setItem('flag-game-answers', JSON.stringify(userAnswers))
-
-    const history = JSON.parse(localStorage.getItem('fotd_history') ?? '{}')
-    history[gameDate] = dailyFlags.map((flag, i) => ({
+    saveAnswers('flag-game-last-played', 'flag-game-answers', gameDate, userAnswers)
+    writeStoredValue('flag-game-score', score.toString())
+    saveHistoryEntry(gameDate, dailyFlags.map((flag, i) => ({
       c: flag.code,
       guess: guessedCodes[i] ?? null
-    }))
-    localStorage.setItem('fotd_history', JSON.stringify(history))
+    })))
 
     setHasPlayedToday(true)
   }

@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { FlagData } from '../types'
 import { getTodayString } from '../utils/dateUtils'
 import { normalizeAnswer } from '../utils/answerUtils'
 import type { Language } from '../i18n'
+import { readSavedAnswers, saveAnswers } from '../utils/storage'
 
 export const useBonusRound = (dailyFlags: FlagData[], language: Language) => {
   const [bonusIndex, setBonusIndex] = useState(0)
   const [bonusAnswers, setBonusAnswers] = useState<boolean[]>([])
   const [hasPlayedBonus, setHasPlayedBonus] = useState(false)
+  const gameDateRef = useRef(getTodayString())
 
   useEffect(() => {
-    const today = getTodayString()
-    const lastBonus = localStorage.getItem('flag-game-bonus-played')
-    const savedAnswers = localStorage.getItem('flag-game-bonus-answers')
+    const savedAnswers = readSavedAnswers('flag-game-bonus-played', 'flag-game-bonus-answers', gameDateRef.current)
 
-    if (lastBonus === today && savedAnswers !== null) {
-      setBonusAnswers(JSON.parse(savedAnswers))
+    if (savedAnswers !== null) {
+      setBonusAnswers(savedAnswers)
       setHasPlayedBonus(true)
     }
   }, [])
@@ -43,8 +43,7 @@ export const useBonusRound = (dailyFlags: FlagData[], language: Language) => {
   }
 
   const saveBonusData = () => {
-    localStorage.setItem('flag-game-bonus-played', getTodayString())
-    localStorage.setItem('flag-game-bonus-answers', JSON.stringify(bonusAnswers))
+    saveAnswers('flag-game-bonus-played', 'flag-game-bonus-answers', gameDateRef.current, bonusAnswers)
     setHasPlayedBonus(true)
   }
 
